@@ -1,7 +1,15 @@
 package ca.utoronto.utm.mcs;
 import org.neo4j.driver.*;
+import org.neo4j.driver.Record;
 import static org.neo4j.driver.Values.parameters;
+
+import java.util.ArrayList;
+
 import io.github.cdimascio.dotenv.Dotenv;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONArray;
 // All your database transactions or queries should 
 // go in this class
 public class Neo4jDAO {
@@ -35,7 +43,7 @@ public class Neo4jDAO {
         try (Session session = this.driver.session() ) {
             session.writeTransaction(tx -> tx.run(
                 "MERGE (n:movie {Name: $name, id: $movieID})",
-                parameters("name",name, "actorID", movieID)));
+                parameters("name",name, "movieID", movieID)));
         }
         return;
     }
@@ -43,29 +51,77 @@ public class Neo4jDAO {
     public void addRelationship(String actorID, String movieID) {
         try (Session session = this.driver.session() ) {
             session.writeTransaction(tx -> tx.run(
-                "MATCH ((a:actor {actorID: $actorID}), (m:movie {movieID: $movieID}) MERGE ((a)-[r:ACTED_IN]-(m))",
+                "MATCH (a:actor), (m:movie) WHERE a.id = $actorID AND m.id = $movieID MERGE ((a)-[r:ACTED_IN]-(m))",
                 parameters("actorID",actorID, "movieID", movieID)));
         }
         return;
     }
 
-    public void getActor(String actorID) {
+    public String getActor(String actorID) throws JSONException {
+        JSONObject toRet = new JSONObject();
+        try (Session session = this.driver.session() ) {
+            String query = "MATCH (a:actor) WHERE a.id = \"%s\" RETURN a.id, a.Name";
+            query = String.format(query, actorID);
+            Result result = session.run(query);
+            String query2 = "MATCH (actor {id: \"%s\"})--(m:movie) RETURN m.Name";
+            query2 = String.format(query2, actorID);
+            Result result2 = session.run(query2);
+            Record actRec = result.next();
+            ArrayList<String> movielist = new ArrayList<String>();
+            while (result2.hasNext()) {
+                Record rec = result2.next();
+                movielist.add(rec.get("m.Name").asString());
+            }
+            toRet.put("actorId", actRec.get("a.id").asString());
+            toRet.put("name", actRec.get("a.Name").asString());
+            toRet.put("movies", new JSONArray(movielist));
+        }
+        return toRet.toString();
+    }
+
+    public String getMovie(String movieID) throws JSONException{
+        JSONObject toRet = new JSONObject();
+        try (Session session = this.driver.session() ) {
+            String query = "MATCH (m:movie) WHERE m.id = \"%s\" RETURN m.id, m.Name";
+            query = String.format(query, movieID);
+            Result result = session.run(query);
+            String query2 = "MATCH (movie {id: \"%s\"})--(a:actor) RETURN a.Name";
+            query2 = String.format(query2, movieID);
+            Result result2 = session.run(query2);
+
+            ArrayList<String> actorlist = new ArrayList<String>();
+            while (result2.hasNext()) {
+                Record rec = result2.next();
+                actorlist.add(rec.get("a.Name").asString());
+            }
+            Record actRec = result.next();
+            toRet.put("movieId", actRec.get("m.id").asString());
+            toRet.put("name", actRec.get("m.Name").asString());
+            toRet.put("actors", new JSONArray(actorlist));
+        }
+        return toRet.toString();
+    }
+
+    public String hasRelationship(String actorID, String movieID) throws JSONException{
+        JSONObject toRet = new JSONObject();
+        try (Session session = this.driver.session() ) {
+            String query = "MATCH (actor {id: \"%s\"})--(movie {id: \"%s\"}) return actor, movie";
+            query = String.format(query, actorID, movieID);
+            Result result = session.run(query);
+            if (result.hasNext()) {
+                toRet.put("actorId", actorID);
+                toRet.put("movieId", movieID);
+                toRet.put("hasRelationship", true);
+            }
+        }
+        return toRet.toString();
+    }
+
+    public void computeBaconNumber(String actorID) throws JSONException{
         return;
     }
 
-    public void getMovie(String movieID) {
-        return;
-    }
-
-    public void hasRelationship(String actorID, String movieID) {
-        return;
-    }
-
-    public void computeBaconNumber(String actorID) {
-        return;
-    }
-
-    public void computeBaconPath(String actorID) {
+    public void computeBaconPath(String actorID) throws JSONException{
         return;
     }
 }
