@@ -1,15 +1,16 @@
 package ca.utoronto.utm.mcs;
 import org.neo4j.driver.*;
 import static org.neo4j.driver.Values.parameters;
-
+import io.github.cdimascio.dotenv.Dotenv;
 // All your database transactions or queries should 
 // go in this class
 public class Neo4jDAO {
     // TODO Complete This Class
     
     private final Driver driver;
-
-    private final String uriDb = "bolt://localhost:7687";
+    Dotenv dotenv = Dotenv.load();
+    String addr = dotenv.get("NEO4J_ADDR");
+    private final String uriDb = "neo4j://"+addr+":7687";
     private final String username = "neo4j";
     private final String password = "123456";
 
