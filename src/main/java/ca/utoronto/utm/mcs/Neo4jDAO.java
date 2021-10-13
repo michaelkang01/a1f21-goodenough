@@ -18,7 +18,7 @@ public class Neo4jDAO {
     private final Driver driver;
     Dotenv dotenv = Dotenv.load();
     String addr = dotenv.get("NEO4J_ADDR");
-    private final String uriDb = "neo4j://"+addr+":7687";
+    private final String uriDb = "bolt://"+addr+":7687";
     private final String username = "neo4j";
     private final String password = "123456";
 
@@ -29,32 +29,93 @@ public class Neo4jDAO {
     public void close() throws Exception {
         this.driver.close();
     }
+    //1 means found, -1 beans not found
+    private int checkActId(String id) {
+        try (Session session = this.driver.session() ) {
+            String query = "MATCH (a:actor) WHERE a.id = \"%s\" RETURN a.Name";
+            query = String.format(query, id);
+            Result result = session.run(query);
+            if (result.hasNext()) {
+                return -1;
+            }
+        }
+        return 1;
+    }
+    
+    //1 means found, -1 beans not found
+    private int checkMovId(String id) {
+        try (Session session = this.driver.session() ) {
+            String query = "MATCH (m:movie) WHERE m.id = \"%s\" RETURN m.Name";
+            query = String.format(query, id);
+            Result result = session.run(query);
+            if (result.hasNext()) {
+                return -1;
+            }
+        }
+        return 1;
+    }
 
-    public void addActor(String name, String actorID) {
+    private int checkRelationship(String movieID, String actorID) {
+        try (Session session = this.driver.session() ) {
+            String query = "MATCH  (a:actor {id: \"%s\"}), (m:movie {id: \"%s\"}) RETURN exists((a)-[:ACTED_IN]-(m))";
+            query = String.format(query, actorID, movieID);
+            Result result = session.run(query);
+            if (result.hasNext()) {
+                Record rec = result.next();
+                if (rec.get("exists((a)-[:ACTED_IN]-(m))").asBoolean() == true) {
+                    return -1;
+                }
+                else {
+                    return 1;
+                }
+            }
+        }
+        return 1;
+    }
+
+    public int addActor(String name, String actorID) {
+        /*
+        if (checkActId(actorID) == 1) {
+            //ActorID is already there, -> 400
+            return -1;
+        }
+        */
         try (Session session = this.driver.session() ) {
             session.writeTransaction(tx -> tx.run(
                 "MERGE (n:actor {Name: $name, id: $actorID})",
                 parameters("name",name, "actorID", actorID)));
         }
-        return;
+        return 1;
     }
 
-    public void addMovie(String name, String movieID) {
+    public int addMovie(String name, String movieID) {
+        /*
+        if (checkMovId(movieID) == 1) {
+            //ActorID is already there, -> 400
+            return -1;
+        }
+        */
         try (Session session = this.driver.session() ) {
             session.writeTransaction(tx -> tx.run(
                 "MERGE (n:movie {Name: $name, id: $movieID})",
                 parameters("name",name, "movieID", movieID)));
         }
-        return;
+        return 1;
     }
 
-    public void addRelationship(String actorID, String movieID) {
+    public int addRelationship(String actorID, String movieID) {
+        /*
+        if (checkRelationship(movieID, actorID) == 1) {
+            //Relationship exists.
+            return -1;
+        }
+        */
         try (Session session = this.driver.session() ) {
             session.writeTransaction(tx -> tx.run(
                 "MATCH (a:actor), (m:movie) WHERE a.id = $actorID AND m.id = $movieID MERGE ((a)-[r:ACTED_IN]-(m))",
                 parameters("actorID",actorID, "movieID", movieID)));
         }
-        return;
+        return 1;
     }
 
     public String getActor(String actorID) throws JSONException {
@@ -76,7 +137,7 @@ public class Neo4jDAO {
             toRet.put("name", actRec.get("a.Name").asString());
             toRet.put("movies", new JSONArray(movielist));
         }
-        return toRet.toString();
+        return toRet.toString(1);
     }
 
     public String getMovie(String movieID) throws JSONException{
@@ -99,7 +160,7 @@ public class Neo4jDAO {
             toRet.put("name", actRec.get("m.Name").asString());
             toRet.put("actors", new JSONArray(actorlist));
         }
-        return toRet.toString();
+        return toRet.toString(1);
     }
 
     public String hasRelationship(String actorID, String movieID) throws JSONException{
@@ -114,22 +175,62 @@ public class Neo4jDAO {
                 toRet.put("hasRelationship", true);
             }
         }
-        return toRet.toString();
+        return toRet.toString(1);
+    }
+    
+    private String getBaconID() {
+        String toRet = "";
+        try (Session session = this.driver.session() ) {
+            String query = "MATCH (a:actor) WHERE a.Name = \"Kevin Bacon\" RETURN a.id";
+            Result result = session.run(query);
+            if (result.hasNext()) {
+                Record rec = result.next();
+                toRet = rec.get("a.id").asString();
+            }
+        }
+        return toRet;
     }
 
     public String computeBaconNumber(String actorID) throws JSONException{
         JSONObject toRet = new JSONObject();
+        String baconID = getBaconID();
+        if (baconID.equals("")) {
+            return "-1";
+        }
         try (Session session = this.driver.session() ) {
             int pathCount = -1;
+            String query = "MATCH path = shortestPath((b:actor {id:\"%s\"})-[*]-(a:actor {id:\"%s\"})) RETURN length(path)";
+            query = String.format(query, actorID, baconID);
+            Result result = session.run(query);
+            if (result.hasNext()) {
+                Record rec = result.next();
+                pathCount = rec.get("length(path)").asInt();
+            }
+            if (pathCount <= 0) {
+                return "-1";
+            }
+            toRet.put("baconNumber", pathCount / 2);
         }
-        return toRet.toString();
+        return toRet.toString(1);
     }
 
     public String computeBaconPath(String actorID) throws JSONException{
         JSONObject toRet = new JSONObject();
+        String baconID = getBaconID();
+        if (baconID.equals("")) {
+            return "-1";
+        }
         try (Session session = this.driver.session() ) {
-            ArrayList<String> path = new ArrayList<String>();
+            ArrayList<Object> path = new ArrayList<Object>();
+            String query = "MATCH path = shortestPath((b:actor {id:\"%s\"})-[*]-(a:actor {id:\"%s\"})) RETURN [node in nodes(path) | node.id]";
+            query = String.format(query, actorID, baconID);
+            Result result = session.run(query);
+            if (result.hasNext()) {
+                Record rec = result.next();
+                path = new ArrayList<Object>(rec.get("[node in nodes(path) | node.id]").asList());
             }
-        return toRet.toString();
+            toRet.put("baconPath", new JSONArray(path));
+        }
+        return toRet.toString(1);
     }
 }
