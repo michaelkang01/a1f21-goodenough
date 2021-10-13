@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 // All your database transactions or queries should 
@@ -29,6 +28,7 @@ public class Neo4jDAO {
     public void close() throws Exception {
         this.driver.close();
     }
+    /*
     //1 means found, -1 beans not found
     private int checkActId(String id) {
         try (Session session = this.driver.session() ) {
@@ -72,6 +72,7 @@ public class Neo4jDAO {
         }
         return 1;
     }
+    */
 
     public int addActor(String name, String actorID) {
         /*
@@ -118,8 +119,9 @@ public class Neo4jDAO {
         return 1;
     }
 
-    public String getActor(String actorID) throws JSONException {
+    public String getActor(String actorID) {
         JSONObject toRet = new JSONObject();
+        String retStr = "";
         try (Session session = this.driver.session() ) {
             String query = "MATCH (a:actor) WHERE a.id = \"%s\" RETURN a.id, a.Name";
             query = String.format(query, actorID);
@@ -133,15 +135,21 @@ public class Neo4jDAO {
                 Record rec = result2.next();
                 movielist.add(rec.get("m.id").asString());
             }
-            toRet.put("actorId", actRec.get("a.id").asString());
-            toRet.put("name", actRec.get("a.Name").asString());
-            toRet.put("movies", new JSONArray(movielist));
+            try {
+                toRet.put("actorId", actRec.get("a.id").asString());
+                toRet.put("name", actRec.get("a.Name").asString());
+                toRet.put("movies", new JSONArray(movielist));
+                retStr = toRet.toString(1);
+            } catch (Exception e) {
+                System.out.printf("JSON error", e);
+            }
         }
-        return toRet.toString(1);
+        return retStr;
     }
 
-    public String getMovie(String movieID) throws JSONException{
+    public String getMovie(String movieID){
         JSONObject toRet = new JSONObject();
+        String retStr = "";
         try (Session session = this.driver.session() ) {
             String query = "MATCH (m:movie) WHERE m.id = \"%s\" RETURN m.id, m.Name";
             query = String.format(query, movieID);
@@ -156,26 +164,37 @@ public class Neo4jDAO {
                 actorlist.add(rec.get("a.id").asString());
             }
             Record actRec = result.next();
-            toRet.put("movieId", actRec.get("m.id").asString());
-            toRet.put("name", actRec.get("m.Name").asString());
-            toRet.put("actors", new JSONArray(actorlist));
+            try {
+                toRet.put("movieId", actRec.get("m.id").asString());
+                toRet.put("name", actRec.get("m.Name").asString());
+                toRet.put("actors", new JSONArray(actorlist));
+                retStr = toRet.toString(1);
+            } catch (Exception e) {
+                System.out.printf("JSON error", e);
+            }
         }
-        return toRet.toString(1);
+        return retStr;
     }
 
-    public String hasRelationship(String actorID, String movieID) throws JSONException{
+    public String hasRelationship(String actorID, String movieID) {
         JSONObject toRet = new JSONObject();
+        String retStr = "";
         try (Session session = this.driver.session() ) {
             String query = "MATCH (actor {id: \"%s\"})--(movie {id: \"%s\"}) return actor, movie";
             query = String.format(query, actorID, movieID);
             Result result = session.run(query);
             if (result.hasNext()) {
-                toRet.put("actorId", actorID);
-                toRet.put("movieId", movieID);
-                toRet.put("hasRelationship", true);
+                try {
+                    toRet.put("actorId", actorID);
+                    toRet.put("movieId", movieID);
+                    toRet.put("hasRelationship", true);
+                    retStr = toRet.toString(1);
+                } catch (Exception e) {
+                    System.out.printf("JSON error", e);
+                }
             }
         }
-        return toRet.toString(1);
+        return retStr;
     }
     
     private String getBaconID() {
@@ -191,8 +210,9 @@ public class Neo4jDAO {
         return toRet;
     }
 
-    public String computeBaconNumber(String actorID) throws JSONException{
+    public String computeBaconNumber(String actorID) {
         JSONObject toRet = new JSONObject();
+        String retStr = "";
         String baconID = getBaconID();
         if (baconID.equals("")) {
             return "-1";
@@ -209,13 +229,19 @@ public class Neo4jDAO {
             if (pathCount <= 0) {
                 return "-1";
             }
-            toRet.put("baconNumber", pathCount / 2);
+            try {
+                toRet.put("baconNumber", pathCount / 2);
+                retStr = toRet.toString(1);
+            } catch (Exception e) {
+                System.out.printf("JSON error", e);
+            }
         }
-        return toRet.toString(1);
+        return retStr;
     }
 
-    public String computeBaconPath(String actorID) throws JSONException{
+    public String computeBaconPath(String actorID){
         JSONObject toRet = new JSONObject();
+        String retStr = "";
         String baconID = getBaconID();
         if (baconID.equals("")) {
             return "-1";
@@ -229,8 +255,13 @@ public class Neo4jDAO {
                 Record rec = result.next();
                 path = new ArrayList<Object>(rec.get("[node in nodes(path) | node.id]").asList());
             }
-            toRet.put("baconPath", new JSONArray(path));
+            try {
+                toRet.put("baconPath", new JSONArray(path));
+                retStr = toRet.toString(1);
+            } catch (Exception e) {
+                System.out.printf("JSON error", e);
+            }
         }
-        return toRet.toString(1);
+        return retStr;
     }
 }

@@ -3,13 +3,11 @@ package ca.utoronto.utm.mcs;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.io.IOException;
 
-import org.json.JSONException;
-
 public class App
 {
     static int port = 8080;
 
-    public static void main(String[] args) throws IOException, JSONException
+    public static void main(String[] args) throws IOException
     {
         // TODO Create Your Server Context Here, There Should Only Be One Context
         Neo4jDAO test = new Neo4jDAO();
