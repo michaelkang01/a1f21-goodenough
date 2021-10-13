@@ -92,7 +92,7 @@ public class Neo4jDAO {
     public int addMovie(String name, String movieID) {
         /*
         if (checkMovId(movieID) == 1) {
-            //ActorID is already there, -> 400
+            //MovieID is already there, -> 400
             return -1;
         }
         */
@@ -106,6 +106,14 @@ public class Neo4jDAO {
 
     public int addRelationship(String actorID, String movieID) {
         /*
+        if (checkMovId(movieID) == -1) {
+            //MovierID is already there, -> 404
+            return -2;
+        }
+        if (checkActId(actorID) == -1) {
+            //ActorID is already there, -> 404
+            return -2;
+        }
         if (checkRelationship(movieID, actorID) == 1) {
             //Relationship exists.
             return -1;
