@@ -7,7 +7,7 @@ import dagger.Provides;
 public class ReqHandlerModule {
     // TODO Complete This Module
     @Provides
-    public Neo4jDAO provideNeo4j() {
+    public Neo4jDAO provideNeo4jDAO() {
         return new Neo4jDAO();
     }
 }
