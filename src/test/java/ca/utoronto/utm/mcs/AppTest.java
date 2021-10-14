@@ -100,7 +100,7 @@ public class AppTest {
         assertTrue(true);
         JSONObject reqBody = new JSONObject()
                             .put("name", "The Baconator Supreme")
-                            .put("mm0001337", "movieId");
+                            .put("movieId", "mm0001337");
         HttpResponse<String> res = sendRequest("/api/v1/addMovie", "PUT", reqBody.toString());
         assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "addMoviePass not 200");
     }
@@ -160,7 +160,7 @@ public class AppTest {
         JSONObject resExpect = new JSONObject()
                             .put("movieId", "m1000")
                             .put("name", "Michael's Adventure")
-                            .put("actors",new JSONArray("[nm0000102, 1000]"));
+                            .put("actors",new JSONArray("[1000, nm0000102]"));
         HttpResponse<String> res = sendRequest("/api/v1/getMovie", "GET", reqBody.toString());
         assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "getMoviePass not 200");
         assertEquals( resExpect.toString(1), res.body(), "getMoviePass body not expected.");
