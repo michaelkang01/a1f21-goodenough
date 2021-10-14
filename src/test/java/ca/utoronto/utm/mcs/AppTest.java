@@ -13,8 +13,8 @@ import java.net.URI;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 // TODO Please Write Your Tests For CI/CD In This Class. You will see
@@ -31,14 +31,20 @@ public class AppTest {
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    @BeforeEach 
-    void beforeTest() {
-        System.out.printf("Testing...\n");
+    @BeforeAll
+    public static void init() {
+        ServerComponent servComp = DaggerServerComponent.create();
+        Server se = servComp.buildServer();
+        ReqHandlerComponent reqComp = DaggerReqHandlerComponent.create();
+        ReqHandler rc = reqComp.buildHandler();
+        
+        se.hts.createContext("/api/v1/", rc);
+        se.hts.start();
     }
 
-    @AfterEach 
-    void afterTest() {
-        System.out.printf("Finished Test\n");
+    @AfterEach
+    public void after() {
+        System.out.printf("Tested\n");
     }
 
     @Test
