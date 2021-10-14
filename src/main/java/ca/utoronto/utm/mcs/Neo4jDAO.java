@@ -101,11 +101,11 @@ public class Neo4jDAO {
 
     public int addRelationship(String actorID, String movieID) {
         if (checkMovId(movieID) == -1) {
-            //MovierID is already there, -> 404
+            //MovierID does not exist -> 404
             return -2;
         }
         if (checkActId(actorID) == -1) {
-            //ActorID is already there, -> 404
+            //ActorID does not exist -> 404
             return -2;
         }
         if (checkRelationship(movieID, actorID) == 1) {

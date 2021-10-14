@@ -1,128 +1,147 @@
 package ca.utoronto.utm.mcs;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 import java.net.http.HttpRequest;
+import java.net.HttpURLConnection;
 import java.net.URI;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
-
-import org.junit.jupiter.api.BeforeAll;
+import org.json.JSONException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 // TODO Please Write Your Tests For CI/CD In This Class. You will see
 // these tests pass/fail on github under github actions.
 public class AppTest {
-    static HttpClient client;
-    static HttpRequest req;
-    static HttpResponse<String> res;
-    @BeforeAll
-    public static void init() throws IOException{
-        String[] start = {""};
-        App.main(start);
-        client = HttpClient.newHttpClient();
+    final static String API_URL = "http://localhost:8080";
+
+    private static HttpResponse<String> sendRequest(String endpoint, String method, String reqBody) throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                                .uri(URI.create(API_URL + endpoint))
+                                .method(method, HttpRequest.BodyPublishers.ofString(reqBody))
+                                .build();
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    @BeforeEach 
+    void beforeTest() {
+        System.out.printf("Testing...\n");
+    }
+
+    @AfterEach 
+    void afterTest() {
+        System.out.printf("Finished Test\n");
     }
 
     @Test
-    public void addActorPass() throws IOException, InterruptedException {
-        req = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/api/v1/addActor"))
-        .PUT(HttpRequest.BodyPublishers.ofString("{\"name\": \"Kevin Bacon\", \"actorId\": \"nm0000102\"}")).build();
-        res = client.send(req, HttpResponse.BodyHandlers.ofString());
-        assertTrue(res.statusCode() == 200);
+    public void addActorPass() throws JSONException, IOException, InterruptedException {
+        JSONObject reqBody = new JSONObject()
+                            .put("name", "Kevin Bacon")
+                            .put("actorId", "nm0000102");
+        HttpResponse<String> res = sendRequest("/api/v1/addActor", "PUT", reqBody.toString());
+        assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "addActorPass not 200");
     }
 
     @Test
-    public void addActorFail() throws IOException, InterruptedException {
-        req = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/api/v1/addActor"))
-        .PUT(HttpRequest.BodyPublishers.ofString("{\"name\": \"Kevin Bacon\"}")).build();
-        res = client.send(req, HttpResponse.BodyHandlers.ofString());
-        assertTrue(res.statusCode() == 400);
+    public void addActorFail() throws JSONException, IOException, InterruptedException {
+        JSONObject reqBody = new JSONObject()
+                            .put("name", "Kevin Bacon");
+        HttpResponse<String> res = sendRequest("/api/v1/addActor", "PUT", reqBody.toString());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, res.statusCode(), "addActorFail not 400.");
     }
 
     @Test
-    public void addMoviePass() throws IOException, InterruptedException  {
-        req = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/api/v1/addMovie"))
-        .PUT(HttpRequest.BodyPublishers.ofString("{\"name\": \"The Baconator Supreme\", \"movieId\": \"mm1000337\"}")).build();
-        res = client.send(req, HttpResponse.BodyHandlers.ofString());
-        assertTrue(res.statusCode() == 200);
+    public void addMoviePass() throws JSONException, IOException, InterruptedException  {
+        JSONObject reqBody = new JSONObject()
+                            .put("name", "The Baconator Supreme")
+                            .put("movieId", "mm0001337");
+        HttpResponse<String> res = sendRequest("/api/v1/addMovie", "PUT", reqBody.toString());
+        assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "addMoviePass not 200");
     }
 
     @Test
-    public void addMovieFail() throws IOException, InterruptedException {
-        req = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/api/v1/addMovie"))
-        .PUT(HttpRequest.BodyPublishers.ofString("{\"name\": \"The Baconator Supreme\", \"actorId\": \"mm1000337\"}")).build();
-        res = client.send(req, HttpResponse.BodyHandlers.ofString());
-        assertTrue(res.statusCode() == 400);
+    public void addMovieFail() throws JSONException, IOException, InterruptedException {
+        JSONObject reqBody = new JSONObject()
+                            .put("name", "BACONATOR")
+                            .put("actorId", "nm0000102");
+        HttpResponse<String> res = sendRequest("/api/v1/addMovie", "PUT", reqBody.toString());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, res.statusCode(), "addMovieFail not 400");
     }
 
     @Test
-    public void addRelationshipPass() throws IOException, InterruptedException {
-        req = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/api/v1/addRelationship"))
-        .PUT(HttpRequest.BodyPublishers.ofString("{\"actorId\": \"nm0000102\", \"movieId\": \"mm1000337\"}")).build();
-        res = client.send(req, HttpResponse.BodyHandlers.ofString());
-        assertTrue(res.statusCode() == 200);
+    public void addRelationshipPass() throws JSONException, IOException, InterruptedException {
+        JSONObject reqBody = new JSONObject()
+                            .put("movieId", "mm0001337")
+                            .put("actorId", "nm0000102");
+        HttpResponse<String> res = sendRequest("/api/v1/addRelationship", "PUT", reqBody.toString());
+        assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "addRelationshipPass not 200");
     }
 
     @Test
-    public void addRelationshipFail() throws IOException, InterruptedException {
-        req = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/api/v1/addRelationship"))
-        .PUT(HttpRequest.BodyPublishers.ofString("{\"actorId\": \"xd\", \"movieId\": \"dne\"}")).build();
-        res = client.send(req, HttpResponse.BodyHandlers.ofString());
-        assertTrue(res.statusCode() == 404);
+    public void addRelationshipFail() throws JSONException,  IOException, InterruptedException {
+        JSONObject reqBody = new JSONObject()
+                            .put("movieId", "DNE")
+                            .put("actorId", "nm0000102");
+        HttpResponse<String> res = sendRequest("/api/v1/addMovie", "PUT", reqBody.toString());
+        assertEquals(HttpURLConnection.HTTP_NOT_FOUND, res.statusCode(), "addRelationshipFail not 404");
     }
 
     @Test
-    public void getActorPass() throws IOException, InterruptedException {
+    public void getActorPass() throws JSONException, IOException, InterruptedException {
         assertTrue(true);
     }
 
     @Test
-    public void getActorFail() throws IOException, InterruptedException {
+    public void getActorFail() throws JSONException, IOException, InterruptedException {
         assertTrue(true);
     }
 
     @Test
-    public void getMoviePass() throws IOException, InterruptedException {
+    public void getMoviePass() throws JSONException, IOException, InterruptedException {
         assertTrue(true);
     }
 
     @Test
-    public void getMovieFail() throws IOException, InterruptedException {
+    public void getMovieFail() throws JSONException, IOException, InterruptedException {
         assertTrue(true);
     }
 
     @Test
-    public void hasRelationshipPass() throws IOException, InterruptedException {
+    public void hasRelationshipPass() throws JSONException, IOException, InterruptedException {
         assertTrue(true);
     }
 
     
     @Test
-    public void hasRelationshipFail() throws IOException, InterruptedException {
+    public void hasRelationshipFail() throws JSONException, IOException, InterruptedException {
         assertTrue(true);
     }
 
     @Test
-    public void computeBaconNumberPass() throws IOException, InterruptedException {
+    public void computeBaconNumberPass() throws JSONException, IOException, InterruptedException {
         assertTrue(true);
     }
 
     @Test
-    public void computeBaconNumberFail() throws IOException, InterruptedException {
+    public void computeBaconNumberFail() throws JSONException, IOException, InterruptedException {
         assertTrue(true);
     }
 
     @Test
-    public void computeBaconPathPass() throws IOException, InterruptedException {
+    public void computeBaconPathPass() throws JSONException, IOException, InterruptedException {
         assertTrue(true);
     }
 
     @Test
-    public void computeBaconPathFail() throws IOException, InterruptedException {
+    public void computeBaconPathFail() throws JSONException, IOException, InterruptedException {
         assertTrue(true);
     }
 }
