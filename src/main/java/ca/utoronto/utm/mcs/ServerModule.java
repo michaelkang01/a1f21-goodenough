@@ -7,7 +7,10 @@ import java.net.InetSocketAddress;
 
 @Module
 public class ServerModule {
-    // TODO Complete This Module
+    /**
+     * Provides HttpServer object for Server, handled by Dagger2
+     * @return HttpServer object binded on localhost with port 8080.
+     */
     @Provides
     public HttpServer provideHttpServer() {
         HttpServer hts;

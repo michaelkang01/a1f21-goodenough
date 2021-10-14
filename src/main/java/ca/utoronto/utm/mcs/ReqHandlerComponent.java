@@ -4,9 +4,10 @@ import dagger.Component;
 import javax.inject.Singleton;
 
 @Singleton
-// TODO Uncomment The Line Below When You Have Implemented ReqHandlerModule 
 @Component(modules = ReqHandlerModule.class)
 public interface ReqHandlerComponent {
-
+    /**
+     * Builder component for ReqHandler handled by Dagger2.
+     */
     public ReqHandler buildHandler();
 }

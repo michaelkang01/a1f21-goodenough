@@ -9,14 +9,19 @@ import org.json.*;
 
 public class ReqHandler implements HttpHandler {
 
-    // TODO Complete This Class
     public Neo4jDAO neo4j;
-
+    /**
+     * ReqHandler contructor, depedency injection handled by Dagger2.
+     * @param neo4j Neo4jDAO object used to operate on the neo4j database.
+     */
     @Inject
     public ReqHandler(Neo4jDAO neo4j) {
         this.neo4j = neo4j;
     }
-
+    /**
+     * Checks if the request is a GET, PUT, or otherwise and routes accordingly.
+     * Sends Http response header 404 if not GET or PUT request, 500 is error occurs.
+     */
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
@@ -38,6 +43,11 @@ public class ReqHandler implements HttpHandler {
         }
     }
 
+    /**
+     * If GET request is sent, will retrieve the proper data from neo4j according to request.
+     * Will send back responseHeaders, 400 on bad input, 404 on not found, 200 on success accompanied by a responseBody, 500 on server error.
+     * @param exchange HttpExchange object that contains request information.
+     */
     public void handleGet(HttpExchange exchange) throws IOException, JSONException {
         String body;
         JSONObject des;
@@ -53,6 +63,7 @@ public class ReqHandler implements HttpHandler {
         String movieId, actorId;
         String res = "";
         switch (uri) {
+            //getActor
             case "/api/v1/getActor":
                 if (des.has("actorId")) {
                     actorId = des.getString("actorId");
@@ -72,6 +83,7 @@ public class ReqHandler implements HttpHandler {
                     return;
                 }
                 break;
+            //getMovie
             case "/api/v1/getMovie":
                 if (des.has("movieId")) {
                     movieId = des.getString("movieId");
@@ -91,6 +103,7 @@ public class ReqHandler implements HttpHandler {
                     return;
                 }
                 break;
+            //hasRelationship
             case "/api/v1/hasRelationship":
                 if (des.has("movieId") && des.has("actorId")) {
                     movieId = des.getString("movieId");
@@ -111,6 +124,7 @@ public class ReqHandler implements HttpHandler {
                     return;
                 }
                 break;
+            //computeBaconNumber
             case "/api/v1/computeBaconNumber":
                 if (des.has("actorId")) {
                     actorId = des.getString("actorId");
@@ -130,6 +144,7 @@ public class ReqHandler implements HttpHandler {
                     return;
                 }
                 break;
+            //computeBaconPath
             case "/api/v1/computeBaconPath":
                 if (des.has("actorId")) {
                     actorId = des.getString("actorId");
@@ -160,6 +175,11 @@ public class ReqHandler implements HttpHandler {
         return;
     }
 
+    /**
+     * If PUT request is sent, will send the proper data from neo4j according to request.
+     * Will send back responseHeaders, 400 on bad input, 404 on not found, 200 on successful addition to database, 500 on server error.
+     * @param exchange HttpExchange object that contains request information.
+     */
     public void handlePut(HttpExchange exchange) throws IOException, JSONException{
         String body;
         JSONObject des;
@@ -174,6 +194,7 @@ public class ReqHandler implements HttpHandler {
         String name, movieId, actorId;
         int res;
         switch (uri) {
+            //addActor
             case "/api/v1/addActor":
                 if (des.has("name") && des.has("actorId")) {
                     name = des.getString("name");
@@ -194,6 +215,7 @@ public class ReqHandler implements HttpHandler {
                     return;
                 }
                 break;
+            //addMovie
             case "/api/v1/addMovie":
                 if (des.has("name") && des.has("movieId")) {
                     name = des.getString("name");
@@ -214,6 +236,7 @@ public class ReqHandler implements HttpHandler {
                     return;
                 }
                 break;
+            //addRelationship
             case "/api/v1/addRelationship":
                 if (des.has("actorId") && des.has("movieId")) {
                     actorId = des.getString("actorId");
