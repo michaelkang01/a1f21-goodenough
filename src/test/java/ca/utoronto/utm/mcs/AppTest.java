@@ -100,7 +100,7 @@ public class AppTest {
         assertTrue(true);
         JSONObject reqBody = new JSONObject()
                             .put("name", "The Baconator Supreme")
-                            .put("movieId", "mm0001337");
+                            .put("mm0001337", "movieId");
         HttpResponse<String> res = sendRequest("/api/v1/addMovie", "PUT", reqBody.toString());
         assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "addMoviePass not 200");
     }
