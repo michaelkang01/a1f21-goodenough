@@ -28,7 +28,7 @@ public class Neo4jDAO {
     public void close() throws Exception {
         this.driver.close();
     }
-    /*
+    
     //1 means found, -1 beans not found
     private int checkActId(String id) {
         try (Session session = this.driver.session() ) {
@@ -36,10 +36,10 @@ public class Neo4jDAO {
             query = String.format(query, id);
             Result result = session.run(query);
             if (result.hasNext()) {
-                return -1;
+                return 1;
             }
         }
-        return 1;
+        return -1;
     }
     
     //1 means found, -1 beans not found
@@ -49,10 +49,10 @@ public class Neo4jDAO {
             query = String.format(query, id);
             Result result = session.run(query);
             if (result.hasNext()) {
-                return -1;
+                return 1;
             }
         }
-        return 1;
+        return -1;
     }
 
     private int checkRelationship(String movieID, String actorID) {
@@ -63,24 +63,21 @@ public class Neo4jDAO {
             if (result.hasNext()) {
                 Record rec = result.next();
                 if (rec.get("exists((a)-[:ACTED_IN]-(m))").asBoolean() == true) {
-                    return -1;
+                    return 1;
                 }
                 else {
-                    return 1;
+                    return -1;
                 }
             }
         }
-        return 1;
+        return -1;
     }
-    */
 
     public int addActor(String name, String actorID) {
-        /*
         if (checkActId(actorID) == 1) {
             //ActorID is already there, -> 400
             return -1;
         }
-        */
         try (Session session = this.driver.session() ) {
             session.writeTransaction(tx -> tx.run(
                 "MERGE (n:actor {Name: $name, id: $actorID})",
@@ -90,12 +87,10 @@ public class Neo4jDAO {
     }
 
     public int addMovie(String name, String movieID) {
-        /*
         if (checkMovId(movieID) == 1) {
             //MovieID is already there, -> 400
             return -1;
         }
-        */
         try (Session session = this.driver.session() ) {
             session.writeTransaction(tx -> tx.run(
                 "MERGE (n:movie {Name: $name, id: $movieID})",
@@ -105,7 +100,6 @@ public class Neo4jDAO {
     }
 
     public int addRelationship(String actorID, String movieID) {
-        /*
         if (checkMovId(movieID) == -1) {
             //MovierID is already there, -> 404
             return -2;
@@ -118,7 +112,6 @@ public class Neo4jDAO {
             //Relationship exists.
             return -1;
         }
-        */
         try (Session session = this.driver.session() ) {
             session.writeTransaction(tx -> tx.run(
                 "MATCH (a:actor), (m:movie) WHERE a.id = $actorID AND m.id = $movieID MERGE ((a)-[r:ACTED_IN]-(m))",

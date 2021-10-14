@@ -4,7 +4,6 @@ import io.github.cdimascio.dotenv.Dotenv;
 import java.io.IOException;
 public class App
 {
-    static int PORT = 8080;
     public static void main(String[] args) throws IOException
     {
         // TODO Create Your Server Context Here, There Should Only Be One Context
@@ -13,7 +12,7 @@ public class App
         ReqHandlerComponent reqComp = DaggerReqHandlerComponent.create();
         ReqHandler rc = reqComp.buildHandler();
         
-        se.hts.createContext("/", rc);
+        se.hts.createContext("/api/v1/", rc);
         se.hts.start();
         
         // This code is used to get the neo4j address, you must use this so that we can mark :)
