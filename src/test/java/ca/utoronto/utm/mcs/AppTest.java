@@ -22,8 +22,6 @@ import java.lang.InterruptedException;
 // these tests pass/fail on github under github actions.
 public class AppTest {
     final static String API_URL = "http://localhost:8080";
-    static Server se;
-    static ReqHandler rc;
     private static HttpResponse<String> sendRequest(String endpoint, String method, String reqBody) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -34,6 +32,14 @@ public class AppTest {
     }
     @BeforeAll
     public static void init() throws InterruptedException, IOException, JSONException{
+        ServerComponent servComp = DaggerServerComponent.create();
+        Server se = servComp.buildServer();
+        ReqHandlerComponent reqComp = DaggerReqHandlerComponent.create();
+        ReqHandler rc = reqComp.buildHandler();
+        
+        se.hts.createContext("/api/v1/", rc);
+        se.hts.start();
+
         JSONObject reqBody = new JSONObject()
                             .put("name", "Michael Kang")
                             .put("actorId", "1000");
