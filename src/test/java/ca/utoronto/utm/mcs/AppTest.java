@@ -17,11 +17,11 @@ import org.junit.jupiter.api.Test;
 // TODO Please Write Your Tests For CI/CD In This Class. You will see
 // these tests pass/fail on github under github actions.
 public class AppTest {
-    HttpClient client;
-    HttpRequest req;
-    HttpResponse<String> res;
+    static HttpClient client;
+    static HttpRequest req;
+    static HttpResponse<String> res;
     @BeforeAll
-    public void init() throws IOException{
+    public static void init() throws IOException{
         String[] start = {""};
         App.main(start);
         client = HttpClient.newHttpClient();
