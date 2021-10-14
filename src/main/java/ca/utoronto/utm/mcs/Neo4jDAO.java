@@ -1,7 +1,4 @@
 package ca.utoronto.utm.mcs;
-import org.neo4j.driver.*;
-import org.neo4j.driver.Record;
-import static org.neo4j.driver.Values.parameters;
 
 import java.util.ArrayList;
 
