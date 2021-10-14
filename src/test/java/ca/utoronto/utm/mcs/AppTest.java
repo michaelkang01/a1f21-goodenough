@@ -161,9 +161,13 @@ public class AppTest {
                             .put("movieId", "m1000")
                             .put("name", "Michael's Adventure")
                             .put("actors",new JSONArray("[1000, nm0000102]"));
+        JSONObject resExpect2 = new JSONObject()
+                            .put("movieId", "m1000")
+                            .put("name", "Michael's Adventure")
+                            .put("actors",new JSONArray("[nm0000102, 1000]"));
         HttpResponse<String> res = sendRequest("/api/v1/getMovie", "GET", reqBody.toString());
         assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "getMoviePass not 200");
-        assertEquals( resExpect.toString(1), res.body(), "getMoviePass body not expected.");
+        assertTrue(resExpect.toString(1).equals(res.body()) || resExpect2.toString(1).equals(res.body()), "getMoviePass body not expected.");
     }
 
     @Test
