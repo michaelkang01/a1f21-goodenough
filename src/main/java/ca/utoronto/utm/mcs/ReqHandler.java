@@ -28,11 +28,11 @@ public class ReqHandler implements HttpHandler {
                     this.handlePut(exchange);
                     break;
                 default:
-                    exchange.sendResponseHeaders(404, 0);
+                    exchange.sendResponseHeaders(404, -1);
                     return;
             }
         } catch (Exception e) {
-            exchange.sendResponseHeaders(500, 0);
+            exchange.sendResponseHeaders(500, -1);
             e.printStackTrace();
             return;
         }
@@ -45,7 +45,7 @@ public class ReqHandler implements HttpHandler {
             body = Utils.convert(exchange.getRequestBody());
             des = new JSONObject(body);
         } catch (Exception e) {
-            exchange.sendResponseHeaders(400,0);
+            exchange.sendResponseHeaders(400,-1);
             e.printStackTrace();
             return;
         }
@@ -57,13 +57,13 @@ public class ReqHandler implements HttpHandler {
                 if (des.has("actorId")) {
                     actorId = des.getString("actorId");
                 } else {
-                    exchange.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, -1);
                     return;
                 }
                 try {
                     res = this.neo4j.getActor(actorId);
                     if (res.equals("{}") || res.equals("-1")) {
-                        exchange.sendResponseHeaders(404, 0);
+                        exchange.sendResponseHeaders(404, -1);
                         return;
                     }
                 } catch (Exception e) {
@@ -76,17 +76,17 @@ public class ReqHandler implements HttpHandler {
                 if (des.has("movieId")) {
                     movieId = des.getString("movieId");
                 } else {
-                    exchange.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, -1);
                     return;
                 }
                 try {
                     res = this.neo4j.getMovie(movieId);
                     if (res.equals("{}") || res.equals("-1")) {
-                        exchange.sendResponseHeaders(404, 0);
+                        exchange.sendResponseHeaders(404, -1);
                         return;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, 0);
+                    exchange.sendResponseHeaders(500, -1);
                     e.printStackTrace();
                     return;
                 }
@@ -96,17 +96,17 @@ public class ReqHandler implements HttpHandler {
                     movieId = des.getString("movieId");
                     actorId = des.getString("actorId");
                 } else {
-                    exchange.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, -1);
                     return;
                 }
                 try {
                     res = this.neo4j.hasRelationship(actorId, movieId);
                     if (res.equals("{}") || res.equals("-1")) {
-                        exchange.sendResponseHeaders(404, 0);
+                        exchange.sendResponseHeaders(404, -1);
                         return;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, 0);
+                    exchange.sendResponseHeaders(500, -1);
                     e.printStackTrace();
                     return;
                 }
@@ -115,17 +115,17 @@ public class ReqHandler implements HttpHandler {
                 if (des.has("actorId")) {
                     actorId = des.getString("actorId");
                 } else {
-                    exchange.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, -1);
                     return;
                 }
                 try {
                     res = this.neo4j.computeBaconNumber(actorId);
                     if (res.equals("{}") || res.equals("-1")) {
-                        exchange.sendResponseHeaders(404, 0);
+                        exchange.sendResponseHeaders(404, -1);
                         return;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, 0);
+                    exchange.sendResponseHeaders(500, -1);
                     e.printStackTrace();
                     return;
                 }
@@ -134,23 +134,23 @@ public class ReqHandler implements HttpHandler {
                 if (des.has("actorId")) {
                     actorId = des.getString("actorId");
                 } else {
-                    exchange.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, -1);
                     return;
                 }
                 try {
-                    res = this.neo4j.computeBaconNumber(actorId);
+                    res = this.neo4j.computeBaconPath(actorId);
                     if (res.equals("{}") || res.equals("-1")) {
-                        exchange.sendResponseHeaders(404, 0);
+                        exchange.sendResponseHeaders(404, -1);
                         return;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, 0);
+                    exchange.sendResponseHeaders(500, -1);
                     e.printStackTrace();
                     return;
                 }
                 break;
             default:
-                exchange.sendResponseHeaders(404, 0);
+                exchange.sendResponseHeaders(404, -1);
                 return;
         }
         exchange.sendResponseHeaders(200, res.getBytes().length);
@@ -179,17 +179,17 @@ public class ReqHandler implements HttpHandler {
                     name = des.getString("name");
                     actorId = des.getString("actorId");
                 } else {
-                    exchange.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, -1);
                     return;
                 }
                 try {
                     res = this.neo4j.addActor(name, actorId);
                     if (res == -1) {
-                        exchange.sendResponseHeaders(400, 0);
+                        exchange.sendResponseHeaders(400, -1);
                         return;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, 0);
+                    exchange.sendResponseHeaders(500, -1);
                     e.printStackTrace();
                     return;
                 }
@@ -199,17 +199,17 @@ public class ReqHandler implements HttpHandler {
                     name = des.getString("name");
                     movieId = des.getString("movieId");
                 } else {
-                    exchange.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, -1);
                     return;
                 }
                 try {
                     res = this.neo4j.addMovie(name, movieId);
                     if (res == -1) {
-                        exchange.sendResponseHeaders(400, 0);
+                        exchange.sendResponseHeaders(400, -1);
                         return;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, 0);
+                    exchange.sendResponseHeaders(500, -1);
                     e.printStackTrace();
                     return;
                 }
@@ -219,30 +219,30 @@ public class ReqHandler implements HttpHandler {
                     actorId = des.getString("actorId");
                     movieId = des.getString("movieId");
                 } else {
-                    exchange.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, -1);
                     return;
                 }
                 try {
                     res = this.neo4j.addRelationship(actorId, movieId);
                     if (res == -1) {
-                        exchange.sendResponseHeaders(400, 0);
+                        exchange.sendResponseHeaders(400, -1);
                         return;
                     }
                     else if (res == -2) {
-                        exchange.sendResponseHeaders(404, 0);
+                        exchange.sendResponseHeaders(404, -1);
                         return;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, 0);
+                    exchange.sendResponseHeaders(500, -1);
                     e.printStackTrace();
                     return;
                 }
                 break;
             default:
-                exchange.sendResponseHeaders(404, 0);
+                exchange.sendResponseHeaders(404, -1);
                 return;
         }
-        exchange.sendResponseHeaders(200, 0);
+        exchange.sendResponseHeaders(200, -1);
         return;
     }
 }
