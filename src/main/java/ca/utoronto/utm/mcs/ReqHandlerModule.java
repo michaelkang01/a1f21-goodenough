@@ -1,5 +1,4 @@
 package ca.utoronto.utm.mcs;
-import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -8,7 +7,6 @@ import dagger.Provides;
 public class ReqHandlerModule {
     // TODO Complete This Module
     @Provides
-    @Singleton
     public Neo4jDAO provideNeo4j() {
         return new Neo4jDAO();
     }

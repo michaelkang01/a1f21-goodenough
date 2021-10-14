@@ -22,12 +22,15 @@ public class ReqHandler implements HttpHandler {
         try {
             switch (exchange.getRequestMethod()) {
                 case "GET":
+                    System.out.printf("LAL");
                     this.handleGet(exchange);
                     break;
                 case "PUT":
+                    System.out.printf("LUL");
                     this.handlePut(exchange);
                     break;
                 default:
+                    System.out.printf("LOL");
                     break;
             }
         } catch (Exception e) {
@@ -41,18 +44,19 @@ public class ReqHandler implements HttpHandler {
         String uri = exchange.getRequestURI().getPath();
         String movieId, actorId;
         String res = "";
+        System.out.printf(uri);
         switch (uri) {
-            case "/api/v1/getActor":
+            case "getActor":
                 if (des.length() == 1 && des.has("actorId")) {
                     actorId = des.getString("actorId");
                 } else {
-                    exchange.sendResponseHeaders(400, -1);
+                    exchange.sendResponseHeaders(400, 0);
                     break;
                 }
                 try {
                     res = this.neo4j.getActor(actorId);
                     if (res.equals("{}") || res.equals("-1")) {
-                        exchange.sendResponseHeaders(404, -1);
+                        exchange.sendResponseHeaders(404, 0);
                         break;
                     }
                 } catch (Exception e) {
@@ -61,85 +65,85 @@ public class ReqHandler implements HttpHandler {
                     break;
                 }
                 break;
-            case "/api/v1/getMovie":
+            case "getMovie":
                 if (des.length() == 1 && des.has("movieId")) {
                     movieId = des.getString("movieId");
                 } else {
-                    exchange.sendResponseHeaders(400, -1);
+                    exchange.sendResponseHeaders(400, 0);
                     break;
                 }
                 try {
                     res = this.neo4j.getMovie(movieId);
                     if (res.equals("{}") || res.equals("-1")) {
-                        exchange.sendResponseHeaders(404, -1);
+                        exchange.sendResponseHeaders(404, 0);
                         break;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, -1);
+                    exchange.sendResponseHeaders(500, 0);
                     e.printStackTrace();
                     break;
                 }
                 break;
-            case "/api/v1/hasRelationship":
+            case "hasRelationship":
                 if (des.length() == 2 && des.has("movieId") && des.has("actorId")) {
                     movieId = des.getString("movieId");
                     actorId = des.getString("actorId");
                 } else {
-                    exchange.sendResponseHeaders(400, -1);
+                    exchange.sendResponseHeaders(400, 0);
                     break;
                 }
                 try {
                     res = this.neo4j.hasRelationship(actorId, movieId);
                     if (res.equals("{}") || res.equals("-1")) {
-                        exchange.sendResponseHeaders(404, -1);
+                        exchange.sendResponseHeaders(404, 0);
                         break;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, -1);
+                    exchange.sendResponseHeaders(500, 0);
                     e.printStackTrace();
                     break;
                 }
                 break;
-            case "/api/v1/computeBaconNumber":
+            case "computeBaconNumber":
                 if (des.length() == 1 && des.has("actorId")) {
                     actorId = des.getString("actorId");
                 } else {
-                    exchange.sendResponseHeaders(400, -1);
+                    exchange.sendResponseHeaders(400, 0);
                     break;
                 }
                 try {
                     res = this.neo4j.computeBaconNumber(actorId);
                     if (res.equals("{}") || res.equals("-1")) {
-                        exchange.sendResponseHeaders(404, -1);
+                        exchange.sendResponseHeaders(404, 0);
                         break;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, -1);
+                    exchange.sendResponseHeaders(500, 0);
                     e.printStackTrace();
                     break;
                 }
                 break;
-            case "/api/v1/computeBaconPath":
+            case "computeBaconPath":
                 if (des.length() == 1 && des.has("actorId")) {
                     actorId = des.getString("actorId");
                 } else {
-                    exchange.sendResponseHeaders(400, -1);
+                    exchange.sendResponseHeaders(400, 0);
                     break;
                 }
                 try {
                     res = this.neo4j.computeBaconNumber(actorId);
                     if (res.equals("{}") || res.equals("-1")) {
-                        exchange.sendResponseHeaders(404, -1);
+                        exchange.sendResponseHeaders(404, 0);
                         break;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, -1);
+                    exchange.sendResponseHeaders(500, 0);
                     e.printStackTrace();
                     break;
                 }
                 break;
             default:
-                exchange.sendResponseHeaders(404, -1);
+                exchange.sendResponseHeaders(404, 0);
                 break;
         }
         exchange.sendResponseHeaders(200, res.getBytes().length);
@@ -156,75 +160,75 @@ public class ReqHandler implements HttpHandler {
         String name, movieId, actorId;
         int res;
         switch (uri) {
-            case "/api/v1/addActor":
+            case "addActor":
                 if (des.length() == 2 && des.has("name") && des.has("actorId")) {
                     name = des.getString("name");
                     actorId = des.getString("actorId");
                 } else {
-                    exchange.sendResponseHeaders(400, -1);
+                    exchange.sendResponseHeaders(400, 0);
                     break;
                 }
                 try {
                     res = this.neo4j.addActor(name, actorId);
                     if (res == -1) {
-                        exchange.sendResponseHeaders(400, -1);
+                        exchange.sendResponseHeaders(400, 0);
                         break;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, -1);
+                    exchange.sendResponseHeaders(500, 0);
                     e.printStackTrace();
                     break;
                 }
                 break;
-            case "/api/v1/addMovie":
+            case "addMovie":
                 if (des.length() == 2 && des.has("name") && des.has("movieId")) {
                     name = des.getString("name");
                     movieId = des.getString("movieId");
                 } else {
-                    exchange.sendResponseHeaders(400, -1);
+                    exchange.sendResponseHeaders(400, 0);
                     break;
                 }
                 try {
                     res = this.neo4j.addMovie(name, movieId);
                     if (res == -1) {
-                        exchange.sendResponseHeaders(400, -1);
+                        exchange.sendResponseHeaders(400, 0);
                         break;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, -1);
+                    exchange.sendResponseHeaders(500, 0);
                     e.printStackTrace();
                     break;
                 }
                 break;
-            case "/api/v1/addRelationship":
+            case "addRelationship":
                 if (des.length() == 2 && des.has("actorId") && des.has("movieId")) {
                     actorId = des.getString("actorId");
                     movieId = des.getString("movieId");
                 } else {
-                    exchange.sendResponseHeaders(400, -1);
+                    exchange.sendResponseHeaders(400, 0);
                     break;
                 }
                 try {
                     res = this.neo4j.addRelationship(actorId, movieId);
                     if (res == -1) {
-                        exchange.sendResponseHeaders(400, -1);
+                        exchange.sendResponseHeaders(400, 0);
                         break;
                     }
                     else if (res == -2) {
-                        exchange.sendResponseHeaders(404, -1);
+                        exchange.sendResponseHeaders(404, 0);
                         break;
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(500, -1);
+                    exchange.sendResponseHeaders(500, 0);
                     e.printStackTrace();
                     break;
                 }
                 break;
             default:
-                exchange.sendResponseHeaders(404, -1);
+                exchange.sendResponseHeaders(404, 0);
                 break;
         }
-        exchange.sendResponseHeaders(200, -1);
+        exchange.sendResponseHeaders(200, 0);
         return;
     }
 }
