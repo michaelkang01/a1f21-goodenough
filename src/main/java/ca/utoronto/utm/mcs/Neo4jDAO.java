@@ -294,4 +294,14 @@ public class Neo4jDAO {
         }
         return retStr;
     }
+
+    public void delete_all_nodes() {
+        try (Session session = this.driver.session() ) {
+            String query = "MATCH (n) DETACH DELETE n";
+            session.run(query);
+        } catch (Exception e) {
+            System.out.printf("Error", e);
+        }
+        return;
+    }
 }

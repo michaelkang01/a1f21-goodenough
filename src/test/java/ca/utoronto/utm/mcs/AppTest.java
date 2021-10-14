@@ -22,6 +22,7 @@ import java.lang.InterruptedException;
 // these tests pass/fail on github under github actions.
 public class AppTest {
     final static String API_URL = "http://localhost:8080";
+
     private static HttpResponse<String> sendRequest(String endpoint, String method, String reqBody) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -39,6 +40,8 @@ public class AppTest {
         
         se.hts.createContext("/api/v1/", rc);
         se.hts.start();
+        
+        rc.neo4j.delete_all_nodes();
 
         JSONObject reqBody = new JSONObject()
                             .put("name", "Michael Kang")
@@ -139,7 +142,7 @@ public class AppTest {
                             .put("movies",new JSONArray("[m1000]"));
         HttpResponse<String> res = sendRequest("/api/v1/getActor", "GET", reqBody.toString());
         assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "getActorPass not 200");
-        assertEquals(resExpect,new JSONObject(res.body()), "getActorPass body not expected.");
+        assertEquals(resExpect.toString(1), res.body(), "getActorPass body not expected.");
     }
 
     @Test
@@ -160,7 +163,7 @@ public class AppTest {
                             .put("actors",new JSONArray("[nm0000102, 1000]"));
         HttpResponse<String> res = sendRequest("/api/v1/getMovie", "GET", reqBody.toString());
         assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "getMoviePass not 200");
-        assertEquals( resExpect,new JSONObject(res.body()), "getMoviePass body not expected.");
+        assertEquals( resExpect.toString(1), res.body(), "getMoviePass body not expected.");
     }
 
     @Test
@@ -182,7 +185,7 @@ public class AppTest {
                             .put("hasRelationship", false);
         HttpResponse<String> res = sendRequest("/api/v1/hasRelationship", "GET", reqBody.toString());
         assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "hasRelationshipPass not 200");
-        assertEquals(resExpect, new JSONObject(res.body()), "hasRelationshipPass body not expected.");
+        assertEquals(resExpect.toString(1), res.body(), "hasRelationshipPass body not expected.");
     }
 
     @Test
@@ -202,7 +205,7 @@ public class AppTest {
                 .put("baconNumber", 1);
         HttpResponse<String> res = sendRequest("/api/v1/computeBaconNumber", "GET", reqBody.toString());
         assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "computeBaconNumberPass not 200");
-        assertEquals(resExpect, new JSONObject(res.body()), "computeBaconNumberPass body not expected.");
+        assertEquals(resExpect.toString(1), res.body(), "computeBaconNumberPass body not expected.");
     }
 
     @Test
@@ -221,7 +224,7 @@ public class AppTest {
                 .put("baconPath", new JSONArray("[1000, m1000, nm0000102]"));
         HttpResponse<String> res = sendRequest("/api/v1/computeBaconPath", "GET", reqBody.toString());
         assertEquals(HttpURLConnection.HTTP_OK, res.statusCode(), "computeBaconPathPass not 200");
-        assertEquals(resExpect, new JSONObject(res.body()),"computeBaconPathPass body not expected.");
+        assertEquals(resExpect.toString(1), res.body(),"computeBaconPathPass body not expected.");
     }
 
     @Test
